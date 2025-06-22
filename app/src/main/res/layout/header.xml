@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    android:elevation="2dp">
+
+    <!-- Status bar padding -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="24dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Menu Icon -->
+        <ImageButton
+            android:id="@+id/header_menu"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_baseline_menu_24"
+            android:contentDescription="@string/menu" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/header_logo"
+                android:layout_width="80dp"
+                android:layout_height="39dp"
+                android:src="@drawable/logo"
+                android:contentDescription="@string/app_name" />
+        </LinearLayout>
+
+        <!-- Search Icon -->
+        <ImageButton
+            android:id="@+id/header_search"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_baseline_search_24"
+            android:contentDescription="@string/search" />
+
+        <!-- World Icon -->
+        <ImageButton
+            android:id="@+id/header_world"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_baseline_language_24"
+            android:contentDescription="@string/language" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cosmetic App</string>
+    <string name="banner_image">Banner image</string>
+    <string name="banner_title">Unlock Your Natural Glow</string>
+    <string name="know_more">Know More</string>
+    <string name="product_categories">Products\' categories</string>
+    <string name="makeup_category">Makeup category image</string>
+    <string name="makeup">make up</string>
+    <string name="skincare_category">Skincare category image</string>
+    <string name="skincare">skincare</string>
+    <string name="gifts_category">Gifts category image</string>
+    <string name="gifts_and_sets">Gifts &amp; sets</string>
+    <string name="virtual_skincare_analysis">Virtual Skincare Analysis</string>
+    <string name="skincare_analysis_image">Skincare analysis illustration</string>
+    <string name="skincare_analysis_description">Looking for a full skincare routine? Our NEW Virtual Skincare Analysis Tool evaluates your skin and provides the most personalized recommendations.</string>
+    <string name="answer_questions">answer a few questions</string>
+    <string name="take_selfie">take a selfie</string>
+    <string name="menu">Menu button</string>
+    <string name="search">Search button</string>
+    <string name="world">World button</string>
+    <string name="language">Language button</string>
+</resources>
+
