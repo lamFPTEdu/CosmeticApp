@@ -22,11 +22,11 @@ public class LandingPageActivity extends AppCompatActivity {
         View landingPageContent = inflater.inflate(R.layout.landing_page, contentFrame, true);
 
 
-        // Set up Get Started button
+        // Set up Know More button
         Button btnGetStarted = landingPageContent.findViewById(R.id.know_more_button);
         btnGetStarted.setOnClickListener(v -> {
             try {
-                Intent intent = new Intent(this, product.class);
+                Intent intent = new Intent(this, productView.class);
                 startActivity(intent);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -56,6 +56,7 @@ public class LandingPageActivity extends AppCompatActivity {
         View makeupCategory = view.findViewById(R.id.makeup_category_container);
         View skincareCategory = view.findViewById(R.id.skincare_category_container);
         View giftsCategory = view.findViewById(R.id.gifts_category_container);
+        View takeASelfie = view.findViewById(R.id.take_selfie_button);
 
         makeupCategory.setOnClickListener(v -> {
             // TODO: Navigate to makeup category
@@ -67,6 +68,10 @@ public class LandingPageActivity extends AppCompatActivity {
 
         giftsCategory.setOnClickListener(v -> {
             // TODO: Navigate to gifts category
+        });
+
+        takeASelfie.setOnClickListener(v -> {
+            // TODO: Navigate to take a selfie feature
         });
     }
 }
