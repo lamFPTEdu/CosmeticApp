@@ -79,14 +79,6 @@
                     android:textColor="#000000"
                     android:textSize="18sp"
                     android:textStyle="bold"/>
-
-                <ImageButton
-                    android:id="@+id/btnAddToCart"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_input_add"
-                    app:tint="#A10550"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

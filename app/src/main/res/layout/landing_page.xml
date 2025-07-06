@@ -68,7 +68,6 @@
                             android:clickable="true"
                             android:focusable="true"
                             android:gravity="center"/>
-
                     </LinearLayout>
                 </LinearLayout>
             </RelativeLayout>
@@ -242,7 +241,8 @@
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent"
                     android:layout_weight="1"
-                    android:text="Looking for a full skincare routine? Our NEW Virtual Skincare Analysis Tool evaluates your skin and provides the most personalized recommendations. "
+                    android:text="Bạn đang tìm kiếm một quy trình chăm sóc da đầy đủ? Công cụ phân tích chăm sóc da ảo MỚI của chúng tôi sẽ đánh giá làn da của bạn và đưa ra các khuyến nghị được cá nhân hóa nhất.
+"
                     />
 
                 <LinearLayout
