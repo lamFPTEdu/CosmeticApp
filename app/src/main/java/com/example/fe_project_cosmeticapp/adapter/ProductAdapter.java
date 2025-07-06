@@ -1,6 +1,7 @@
 package com.example.fe_project_cosmeticapp.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,7 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.example.fe_project_cosmeticapp.ProductDetailActivity;
 import com.example.fe_project_cosmeticapp.R;
 import com.example.fe_project_cosmeticapp.model.Product;
 
@@ -118,14 +120,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             holder.imgProduct.setVisibility(View.INVISIBLE);
         }
 
-        // Set click listener for add to cart button
-        holder.btnAddToCart.setOnClickListener(v -> {
-            Toast.makeText(context, product.getName() + " đã thêm vào giỏ hàng", Toast.LENGTH_SHORT).show();
-        });
-
-        // Set item click listener
+        // Set item click listener - Chuyển sang trang chi tiết sản phẩm
         holder.itemView.setOnClickListener(v -> {
-            Toast.makeText(context, "Đã chọn: " + product.getName(), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(context, ProductDetailActivity.class);
+            intent.putExtra("product_id", product.getId());
+            context.startActivity(intent);
         });
     }
 
@@ -139,7 +138,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         TextView tvProductName;
         TextView tvProductDescription;
         TextView tvPrice;
-        ImageButton btnAddToCart;
         ProgressBar imageLoadingProgress;
 
         public ProductViewHolder(@NonNull View itemView) {
@@ -148,7 +146,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             tvProductName = itemView.findViewById(R.id.tvProductName);
             tvProductDescription = itemView.findViewById(R.id.tvProductDescription);
             tvPrice = itemView.findViewById(R.id.tvPrice);
-            btnAddToCart = itemView.findViewById(R.id.btnAddToCart);
             imageLoadingProgress = itemView.findViewById(R.id.image_loading_progress);
         }
     }

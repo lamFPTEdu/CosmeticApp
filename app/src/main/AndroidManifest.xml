@@ -22,6 +22,9 @@
             android:name=".productView"
             android:exported="false" />
         <activity
+            android:name=".ProductDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".LandingPageActivity"
             android:exported="true">
             <intent-filter>
