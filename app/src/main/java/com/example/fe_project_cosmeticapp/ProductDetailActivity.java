@@ -7,11 +7,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AlertDialog;
 
 import com.bumptech.glide.Glide;
 import com.example.fe_project_cosmeticapp.api.RetrofitClient;
+import com.example.fe_project_cosmeticapp.base.BaseActivity;
 import com.example.fe_project_cosmeticapp.model.Product;
 
 import android.view.LayoutInflater;
@@ -21,7 +21,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ProductDetailActivity extends AppCompatActivity {
+public class ProductDetailActivity extends BaseActivity {
 
     private ImageView productImage;
     private TextView productTitle, productSubtitle, productSkinType;
@@ -34,25 +34,37 @@ public class ProductDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.product_detailed);
 
         // Khởi tạo các view
         initViews();
 
-        // Lấy productId từ intent
+        // Lấy ID sản phẩm từ intent
         productId = getIntent().getIntExtra("product_id", -1);
-
-        if (productId == -1) {
+        if (productId != -1) {
+            // Tải thông tin chi tiết sản phẩm
+            loadProductDetails(productId);
+        } else {
             Toast.makeText(this, "Không tìm thấy thông tin sản phẩm", Toast.LENGTH_SHORT).show();
             finish();
-            return;
         }
+    }
 
-        // Tải thông tin sản phẩm từ API
-        loadProductDetails(productId);
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.product_detailed;
+    }
 
-        // Thiết lập sự kiện click cho nút "Bỏ vào giỏ hàng"
-        btnAddToCart.setOnClickListener(v -> showQuantityDialog());
+    @Override
+    protected int getSelectedNavigationItemId() {
+        // Có thể trả về ID của item tương ứng trong bottom navigation
+        // hoặc -1 nếu không muốn highlight item nào
+        return -1;
+    }
+
+    @Override
+    protected boolean shouldShowBackButton() {
+        // Hiển thị nút Back thay vì nút Menu
+        return true;
     }
 
     private void initViews() {
@@ -102,6 +114,11 @@ public class ProductDetailActivity extends AppCompatActivity {
                 .load(product.getImageUrl())
                 .into(productImage);
         }
+
+        // Thiết lập sự kiện click cho nút thêm vào giỏ hàng
+        btnAddToCart.setOnClickListener(v -> {
+            showQuantityDialog();
+        });
     }
 
     private void showQuantityDialog() {

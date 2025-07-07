@@ -20,5 +20,5 @@
     <string name="search">Search button</string>
     <string name="world">World button</string>
     <string name="language">Language button</string>
+    <string name="back">Back button</string>
 </resources>
-

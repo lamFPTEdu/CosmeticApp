@@ -2,18 +2,17 @@ package com.example.fe_project_cosmeticapp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fe_project_cosmeticapp.adapter.ProductAdapter;
 import com.example.fe_project_cosmeticapp.api.RetrofitClient;
+import com.example.fe_project_cosmeticapp.base.BaseActivity;
 import com.example.fe_project_cosmeticapp.model.Product;
 import com.example.fe_project_cosmeticapp.model.ProductResponse;
 import com.example.fe_project_cosmeticapp.utils.EndlessRecyclerViewScrollListener;
@@ -25,13 +24,14 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class productView extends AppCompatActivity {
+public class productView extends BaseActivity {
 
     private RecyclerView productRecyclerView;
     private ProductAdapter productAdapter;
     private List<Product> productList;
     private ProgressBar progressBar;
     private View errorView;
+    private TextView categoryTitleTextView;
     private int currentPage = 1; // Bắt đầu từ trang 1 thay vì 0
     private int pageSize = 10;
     private String currentCategory = "";
@@ -42,18 +42,41 @@ public class productView extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.base_layout);
 
-        // Inflate product layout vào content_frame
-        LayoutInflater inflater = LayoutInflater.from(this);
-        ViewGroup contentFrame = findViewById(R.id.content_frame);
-        View productContent = inflater.inflate(R.layout.activity_product, contentFrame, true);
+        // Lấy category từ intent nếu có
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("category")) {
+            currentCategory = intent.getStringExtra("category");
+        }
 
         // Khởi tạo các thành phần của màn hình sản phẩm
         initializeProductComponents();
 
+        // Hiển thị tiêu đề danh mục nếu có
+        if (categoryTitleTextView != null && currentCategory != null && !currentCategory.isEmpty()) {
+            categoryTitleTextView.setText(currentCategory.toUpperCase());
+            categoryTitleTextView.setVisibility(View.VISIBLE);
+        }
+
         // Load dữ liệu sản phẩm từ API
         loadProducts(true);
+    }
+
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.activity_product;
+    }
+
+    @Override
+    protected int getSelectedNavigationItemId() {
+        // Không trả về R.id.nav_category để tránh kích hoạt lại dialog
+        return -1; // Hoặc một ID khác không tương ứng với nút category
+    }
+
+    @Override
+    protected boolean shouldShowBackButton() {
+        // Hiển thị nút Back thay vì nút Menu
+        return true;
     }
 
     private void initializeProductComponents() {
@@ -62,12 +85,11 @@ public class productView extends AppCompatActivity {
         GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
         productRecyclerView.setLayoutManager(layoutManager);
 
-        // Thêm ProgressBar ở cuối danh sách (nếu không có sẵn trong layout)
+        // Thêm ProgressBar ở cuối danh sách
         progressBar = findViewById(R.id.progress_bar);
-        if (progressBar == null) {
-            // Nếu không tìm thấy progress_bar trong layout, bạn có thể tạo mới hoặc bỏ qua dòng này
-            // và thêm ProgressBar vào layout của bạn
-        }
+
+        // Tìm TextView để hiển thị tiêu đề danh mục
+        categoryTitleTextView = findViewById(R.id.category_title);
 
         // Khởi tạo adapter
         productList = new ArrayList<>();
@@ -135,8 +157,16 @@ public class productView extends AppCompatActivity {
             }
         }
 
-        // Gọi API để lấy danh sách sản phẩm
-        Call<ProductResponse> call = RetrofitClient.getProductApi().getProducts(pageSize, currentPage, currentCategory);
+        // Gọi API để lấy danh sách sản phẩm dựa trên danh mục
+        Call<ProductResponse> call;
+        if (currentCategory != null && !currentCategory.isEmpty()) {
+            // Nếu có danh mục, gọi API lấy sản phẩm theo danh mục
+            call = RetrofitClient.getProductApi().getProductsByCategory(
+                currentCategory, pageSize, currentPage);
+        } else {
+            // Ngược lại, lấy tất cả sản phẩm
+            call = RetrofitClient.getProductApi().getProducts(pageSize, currentPage, "");
+        }
 
         call.enqueue(new Callback<ProductResponse>() {
             @Override
@@ -164,9 +194,6 @@ public class productView extends AppCompatActivity {
 
                         // Tăng số trang cho lần tải tiếp theo
                         currentPage++;
-
-                        // Log số lượng sản phẩm đã nhận
-                        Toast.makeText(productView.this, "Đã tải " + newProducts.size() + " sản phẩm", Toast.LENGTH_SHORT).show();
                     } else {
                         // Không có sản phẩm mới, đánh dấu là trang cuối
                         isLastPage = true;
@@ -206,6 +233,12 @@ public class productView extends AppCompatActivity {
     public void filterByCategory(String category) {
         // Đặt lại danh mục hiện tại
         currentCategory = category;
+
+        // Cập nhật tiêu đề danh mục
+        if (categoryTitleTextView != null) {
+            categoryTitleTextView.setText(category.toUpperCase());
+            categoryTitleTextView.setVisibility(View.VISIBLE);
+        }
 
         // Tải lại sản phẩm từ đầu với danh mục mới
         loadProducts(true);
