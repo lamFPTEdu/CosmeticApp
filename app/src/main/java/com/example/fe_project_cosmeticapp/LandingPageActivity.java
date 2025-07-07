@@ -59,19 +59,28 @@ public class LandingPageActivity extends AppCompatActivity {
         View takeASelfie = view.findViewById(R.id.take_selfie_button);
 
         makeupCategory.setOnClickListener(v -> {
-            // TODO: Navigate to makeup category
+            navigateToProductViewByCategory("make up");
         });
 
         skincareCategory.setOnClickListener(v -> {
-            // TODO: Navigate to skincare category
+            navigateToProductViewByCategory("skin care");
         });
 
         giftsCategory.setOnClickListener(v -> {
-            // TODO: Navigate to gifts category
+            navigateToProductViewByCategory("gifts & sets");
         });
 
         takeASelfie.setOnClickListener(v -> {
             // TODO: Navigate to take a selfie feature
         });
     }
+
+    // Phương thức để điều hướng đến trang ProductView với danh mục đã chọn
+    private void navigateToProductViewByCategory(String category) {
+        Intent intent = new Intent(this, productView.class);
+        intent.putExtra("category", category);
+        startActivity(intent);
+    }
 }
+
+
