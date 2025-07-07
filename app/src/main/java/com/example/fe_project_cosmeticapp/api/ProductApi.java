@@ -53,4 +53,13 @@ public interface ProductApi {
     // Lấy tất cả các loại da
     @GET("api/products/skintypes")
     Call<String[]> getAllSkinTypes();
+
+    // Lấy sản phẩm theo cả danh mục và loại da
+    @GET("api/products")
+    Call<ProductResponse> getProductsByCategoryAndSkinType(
+        @Query("category") String category,
+        @Query("skinType") String skinType,
+        @Query("pageSize") int pageSize,
+        @Query("page") int page
+    );
 }
