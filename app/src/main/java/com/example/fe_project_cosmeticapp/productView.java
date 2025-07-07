@@ -35,9 +35,13 @@ public class productView extends BaseActivity {
     private int currentPage = 1; // Bắt đầu từ trang 1 thay vì 0
     private int pageSize = 10;
     private String currentCategory = "";
+    private String currentSkinType = ""; // Thêm biến lưu loại da hiện tại
     private boolean isLoading = false;
     private boolean isLastPage = false;
     private EndlessRecyclerViewScrollListener scrollListener;
+
+    // Thêm mảng chứa các loại da
+    private final String[] SKIN_TYPES = {"normal skin", "dry skin", "mixed skin", "oily skin"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,9 +137,66 @@ public class productView extends BaseActivity {
         }
     }
 
+    // Phương thức để lọc sản phẩm theo loại da
+    public void filterBySkinType(String skinType) {
+        // Đặt lại loại da hiện tại
+        currentSkinType = skinType;
+
+        // Cập nhật tiêu đề hiển thị
+        updateDisplayTitle();
+
+        // Tải lại sản phẩm từ đầu với loại da mới (giữ nguyên category nếu có)
+        loadProducts(true);
+    }
+
+    // Phương thức để cập nhật tiêu đề hiển thị dựa trên các bộ lọc hiện tại
+    private void updateDisplayTitle() {
+        if (categoryTitleTextView != null) {
+            if (currentCategory != null && !currentCategory.isEmpty() &&
+                currentSkinType != null && !currentSkinType.isEmpty()) {
+                // Nếu cả hai bộ lọc đều được áp dụng
+                categoryTitleTextView.setText(currentCategory.toUpperCase() + " - " + currentSkinType.toUpperCase());
+            } else if (currentSkinType != null && !currentSkinType.isEmpty()) {
+                // Chỉ có skin type
+                categoryTitleTextView.setText("FOR " + currentSkinType.toUpperCase());
+            } else if (currentCategory != null && !currentCategory.isEmpty()) {
+                // Chỉ có category
+                categoryTitleTextView.setText(currentCategory.toUpperCase());
+            } else {
+                // Không có bộ lọc
+                categoryTitleTextView.setText("TẤT CẢ SẢN PHẨM");
+            }
+            categoryTitleTextView.setVisibility(View.VISIBLE);
+        }
+    }
+
     private void showFilterDialog() {
-        // Implement filter dialog later
-        Toast.makeText(this, "Tính năng lọc sẽ được triển khai sau", Toast.LENGTH_SHORT).show();
+        // Tạo dialog để chọn loại da
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle("Chọn loại da");
+
+        // Đặt danh sách các loại da vào dialog
+        builder.setItems(SKIN_TYPES, (dialog, which) -> {
+            String selectedSkinType = SKIN_TYPES[which];
+            filterBySkinType(selectedSkinType);
+        });
+
+        // Thêm tùy chọn "Tất cả sản phẩm" để xóa bộ lọc
+        builder.setNeutralButton("Tất cả sản phẩm", (dialog, which) -> {
+            // Xóa tất cả bộ lọc
+            currentSkinType = "";
+            currentCategory = "";
+
+            if (categoryTitleTextView != null) {
+                categoryTitleTextView.setText("TẤT CẢ SẢN PHẨM");
+                categoryTitleTextView.setVisibility(View.VISIBLE);
+            }
+
+            loadProducts(true);
+        });
+
+        // Hiển thị dialog
+        builder.show();
     }
 
     private void loadProducts(boolean isFirstLoad) {
@@ -157,14 +218,24 @@ public class productView extends BaseActivity {
             }
         }
 
-        // Gọi API để lấy danh sách sản phẩm dựa trên danh mục
+        // Gọi API để lấy danh sách sản phẩm dựa trên bộ lọc
         Call<ProductResponse> call;
-        if (currentCategory != null && !currentCategory.isEmpty()) {
-            // Nếu có danh mục, gọi API lấy sản phẩm theo danh mục
+
+        if (currentSkinType != null && !currentSkinType.isEmpty() &&
+            currentCategory != null && !currentCategory.isEmpty()) {
+            // Nếu cả category và skin type đều được chọn, gọi API với cả hai tham số
+            call = RetrofitClient.getProductApi().getProductsByCategoryAndSkinType(
+                currentCategory, currentSkinType, pageSize, currentPage);
+        } else if (currentSkinType != null && !currentSkinType.isEmpty()) {
+            // Nếu chỉ có skin type được chọn
+            call = RetrofitClient.getProductApi().getProductsBySkinType(
+                currentSkinType, pageSize, currentPage);
+        } else if (currentCategory != null && !currentCategory.isEmpty()) {
+            // Nếu chỉ có category được chọn
             call = RetrofitClient.getProductApi().getProductsByCategory(
                 currentCategory, pageSize, currentPage);
         } else {
-            // Ngược lại, lấy tất cả sản phẩm
+            // Không có bộ lọc nào, lấy tất cả sản phẩm
             call = RetrofitClient.getProductApi().getProducts(pageSize, currentPage, "");
         }
 
