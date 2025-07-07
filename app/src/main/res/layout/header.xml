@@ -12,7 +12,9 @@
         android:layout_width="match_parent"
         android:layout_height="24dp"/>
 
+    <!-- Main Header Row -->
     <LinearLayout
+        android:id="@+id/header_main_row"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:orientation="horizontal"
@@ -40,6 +42,7 @@
             android:visibility="gone" />
 
         <LinearLayout
+            android:id="@+id/header_logo_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -72,5 +75,50 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             app:srcCompat="@drawable/ic_baseline_language_24"
             android:contentDescription="@string/language" />
+    </LinearLayout>
+
+    <!-- Search Bar Row (Hidden by default) -->
+    <LinearLayout
+        android:id="@+id/header_search_bar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:visibility="gone"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp">
+
+        <!-- Back Button for Search -->
+        <ImageButton
+            android:id="@+id/search_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_baseline_arrow_back_24"
+            android:contentDescription="@string/back" />
+
+        <!-- Search EditText -->
+        <EditText
+            android:id="@+id/search_edit_text"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@android:color/white"
+            android:hint="Tìm kiếm sản phẩm..."
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:maxLines="1"
+            android:padding="8dp" />
+
+        <!-- Clear Search Button -->
+        <ImageButton
+            android:id="@+id/search_clear"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_baseline_close_24"
+            android:contentDescription="Xóa" />
     </LinearLayout>
 </LinearLayout>

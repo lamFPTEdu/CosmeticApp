@@ -120,21 +120,6 @@ public class productView extends BaseActivity {
                 showFilterDialog();
             });
         }
-
-        // Set up Profile button
-        View profileButton = findViewById(R.id.nav_profile);
-        if (profileButton != null) {
-            profileButton.setOnClickListener(v -> {
-                String token = getSharedPreferences("auth", MODE_PRIVATE).getString("token", null);
-                Intent intent;
-                if (token == null || token.isEmpty()) {
-                    intent = new Intent(this, com.example.fe_project_cosmeticapp.ui.LoginActivity.class);
-                } else {
-                    intent = new Intent(this, com.example.fe_project_cosmeticapp.ui.ProfileActivity.class);
-                }
-                startActivity(intent);
-            });
-        }
     }
 
     // Phương thức để lọc sản phẩm theo loại da
