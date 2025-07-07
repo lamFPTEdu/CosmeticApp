@@ -41,7 +41,7 @@ public interface ProductApi {
     // Tìm kiếm sản phẩm theo tên
     @GET("api/products")
     Call<ProductResponse> searchProducts(
-        @Query("name") String name,
+        @Query("searchTerm") String searchTerm,
         @Query("pageSize") int pageSize,
         @Query("page") int page
     );
