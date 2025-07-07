@@ -1,12 +1,21 @@
 package com.example.fe_project_cosmeticapp;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -120,6 +129,9 @@ public class productView extends BaseActivity {
                 showFilterDialog();
             });
         }
+
+        // Thiết lập thanh tìm kiếm trên header
+        setupSearchBar();
     }
 
     // Phương thức để lọc sản phẩm theo loại da
@@ -182,6 +194,173 @@ public class productView extends BaseActivity {
 
         // Hiển thị dialog
         builder.show();
+    }
+
+    // Thiết lập thanh tìm kiếm trên header thay vì dialog
+    private void setupSearchBar() {
+        // Tìm các view trong header
+        LinearLayout mainHeaderRow = findViewById(R.id.header_main_row);
+        LinearLayout searchBarLayout = findViewById(R.id.header_search_bar);
+        ImageButton searchButton = findViewById(R.id.header_search);
+        ImageButton searchBackButton = findViewById(R.id.search_back);
+        ImageButton searchClearButton = findViewById(R.id.search_clear);
+        EditText searchEditText = findViewById(R.id.search_edit_text);
+
+        // Xử lý sự kiện khi nhấn nút tìm kiếm trong header
+        if (searchButton != null) {
+            searchButton.setOnClickListener(v -> {
+                // Hiển thị thanh tìm kiếm, ẩn header chính
+                if (mainHeaderRow != null) mainHeaderRow.setVisibility(View.GONE);
+                if (searchBarLayout != null) searchBarLayout.setVisibility(View.VISIBLE);
+
+                // Focus vào ô nhập liệu và hiển thị bàn phím
+                if (searchEditText != null) {
+                    searchEditText.requestFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                }
+            });
+        }
+
+        // Xử lý sự kiện khi nhấn nút quay lại trong thanh tìm kiếm
+        if (searchBackButton != null) {
+            searchBackButton.setOnClickListener(v -> {
+                // Ẩn thanh tìm kiếm, hiển thị header chính
+                if (mainHeaderRow != null) mainHeaderRow.setVisibility(View.VISIBLE);
+                if (searchBarLayout != null) searchBarLayout.setVisibility(View.GONE);
+
+                // Ẩn bàn phím
+                if (searchEditText != null) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.hideSoftInputFromWindow(searchEditText.getWindowToken(), 0);
+                    }
+                    searchEditText.setText("");
+                }
+            });
+        }
+
+        // Xử lý sự kiện khi nhấn nút xóa trong thanh tìm kiếm
+        if (searchClearButton != null) {
+            searchClearButton.setOnClickListener(v -> {
+                if (searchEditText != null) {
+                    searchEditText.setText("");
+                    searchEditText.requestFocus();
+                }
+            });
+        }
+
+        // Xử lý sự kiện khi nhấn nút Enter/Search trên bàn phím
+        if (searchEditText != null) {
+            searchEditText.setOnEditorActionListener((v, actionId, event) -> {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                        (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                    String searchQuery = searchEditText.getText().toString().trim();
+                    if (!searchQuery.isEmpty()) {
+                        // Thực hiện tìm kiếm với từ khóa nhập vào
+                        searchProducts(searchQuery);
+
+                        // Ẩn bàn phím sau khi tìm kiếm
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        if (imm != null) {
+                            imm.hideSoftInputFromWindow(searchEditText.getWindowToken(), 0);
+                        }
+
+                        // Ẩn thanh tìm kiếm, hiển thị header chính
+                        if (mainHeaderRow != null) mainHeaderRow.setVisibility(View.VISIBLE);
+                        if (searchBarLayout != null) searchBarLayout.setVisibility(View.GONE);
+                    } else {
+                        Toast.makeText(productView.this, "Vui lòng nhập từ khóa tìm kiếm", Toast.LENGTH_SHORT).show();
+                    }
+                    return true;
+                }
+                return false;
+            });
+        }
+    }
+
+    private void searchProducts(String query) {
+        // Đánh dấu đang tải
+        isLoading = true;
+
+        // Hiển thị loading indicator
+        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+
+        // Reset trang về 1 khi thực hiện tìm kiếm mới
+        currentPage = 1;
+
+        // Reset các biến khác
+        currentCategory = "";
+        currentSkinType = "";
+
+        // Cập nhật tiêu đề thành từ khóa tìm kiếm
+        if (categoryTitleTextView != null) {
+            categoryTitleTextView.setText("TÌM KIẾM: " + query.toUpperCase());
+            categoryTitleTextView.setVisibility(View.VISIBLE);
+        }
+
+        // Gọi API để tìm kiếm sản phẩm với tham số searchTerm đúng
+        Call<ProductResponse> call = RetrofitClient.getProductApi().searchProducts(query, pageSize, currentPage);
+
+        call.enqueue(new Callback<ProductResponse>() {
+            @Override
+            public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
+                // Ẩn loading indicator
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
+
+                // Đánh dấu không còn đang tải
+                isLoading = false;
+
+                if (response.isSuccessful() && response.body() != null) {
+                    ProductResponse productResponse = response.body();
+                    List<Product> searchResults = productResponse.getItems();
+
+                    // Kiểm tra xem có phải trang cuối không
+                    isLastPage = !productResponse.isHasNextPage();
+
+                    if (searchResults != null && !searchResults.isEmpty()) {
+                        // Xóa danh sách sản phẩm cũ và hiển thị kết quả tìm kiếm mới
+                        productAdapter.setProducts(searchResults);
+
+                        // Chỉ tăng số trang nếu còn trang tiếp theo
+                        if (!isLastPage) {
+                            currentPage++;
+                        }
+
+                        // Hiển thị thông báo số kết quả tìm thấy
+                        int totalCount = productResponse.getTotalCount();
+                        Toast.makeText(productView.this, "Tìm thấy " + totalCount + " sản phẩm phù hợp từ khóa \"" + query + "\"", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Không có sản phẩm nào, đánh dấu là trang cuối
+                        isLastPage = true;
+                        productAdapter.clearProducts(); // Xóa các sản phẩm cũ
+                        Toast.makeText(productView.this, "Không tìm thấy sản phẩm nào phù hợp từ khóa \"" + query + "\"", Toast.LENGTH_SHORT).show();
+                    }
+
+                    // Reset scroll listener để có thể cuộn lại từ đầu
+                    if (scrollListener != null) {
+                        scrollListener.resetState();
+                    }
+                } else {
+                    // Xử lý lỗi response
+                    Toast.makeText(productView.this, "Lỗi khi tìm kiếm sản phẩm: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ProductResponse> call, Throwable t) {
+                // Ẩn loading indicator
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
+
+                // Đánh dấu không còn đang tải
+                isLoading = false;
+
+                // Hiển thị thông báo lỗi
+                Toast.makeText(productView.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void loadProducts(boolean isFirstLoad) {
