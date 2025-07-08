@@ -21,74 +21,50 @@ public class RetrofitClient {
 
     public static Retrofit getClient() {
         if (retrofit == null) {
-            // Tạo logging interceptor cho việc debug
-            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+            try {
+                // Tạo logging interceptor cho việc debug
+                HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+                loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
-            // Tạo OkHttpClient với cấu hình để bỏ qua xác thực SSL (chỉ sử dụng trong môi trường dev)
-            OkHttpClient client = getUnsafeOkHttpClient()
-                .addInterceptor(loggingInterceptor)
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(30, TimeUnit.SECONDS)
-                .build();
+                // Trust all certificates (chỉ dùng cho dev, KHÔNG dùng cho production)
+                TrustManager[] trustAllCerts = new TrustManager[]{
+                        new X509TrustManager() {
+                            @Override
+                            public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {}
+                            @Override
+                            public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {}
+                            @Override
+                            public java.security.cert.X509Certificate[] getAcceptedIssuers() { return new java.security.cert.X509Certificate[]{}; }
+                        }
+                };
 
-            retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(client)
-                .build();
+                final SSLContext sslContext = SSLContext.getInstance("SSL");
+                sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+                final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+
+                OkHttpClient.Builder builder = new OkHttpClient.Builder();
+                builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
+                builder.hostnameVerifier((hostname, session) -> true);
+                builder.addInterceptor(loggingInterceptor);
+                builder.connectTimeout(30, TimeUnit.SECONDS);
+                builder.readTimeout(30, TimeUnit.SECONDS);
+                builder.writeTimeout(30, TimeUnit.SECONDS);
+
+                OkHttpClient client = builder.build();
+
+                retrofit = new Retrofit.Builder()
+                        .baseUrl(BASE_URL)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .client(client)
+                        .build();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
         return retrofit;
     }
 
     public static ProductApi getProductApi() {
         return getClient().create(ProductApi.class);
-    }
-
-    // Phương thức này tạo OkHttpClient để bỏ qua xác thực SSL
-    // Chú ý: Chỉ dùng cho môi trường phát triển, không dùng cho production!
-    private static OkHttpClient.Builder getUnsafeOkHttpClient() {
-        try {
-            // Tạo một trust manager không thực hiện xác thực
-            final TrustManager[] trustAllCerts = new TrustManager[]{
-                new X509TrustManager() {
-                    @Override
-                    public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
-                    }
-
-                    @Override
-                    public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
-                    }
-
-                    @Override
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return new java.security.cert.X509Certificate[]{};
-                    }
-                }
-            };
-
-            // Cài đặt SSL context với trust manager tự tạo
-            final SSLContext sslContext = SSLContext.getInstance("SSL");
-            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-
-            // Tạo SSL socket factory
-            final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-
-            OkHttpClient.Builder builder = new OkHttpClient.Builder();
-            builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
-
-            // Chấp nhận tất cả hostname
-            builder.hostnameVerifier(new HostnameVerifier() {
-                @Override
-                public boolean verify(String hostname, SSLSession session) {
-                    return true;
-                }
-            });
-
-            return builder;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }

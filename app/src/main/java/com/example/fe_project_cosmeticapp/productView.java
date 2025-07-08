@@ -1,5 +1,6 @@
 package com.example.fe_project_cosmeticapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -91,6 +92,21 @@ public class productView extends AppCompatActivity {
             filterButton.setOnClickListener(v -> {
                 // Mở dialog filter
                 showFilterDialog();
+            });
+        }
+
+        // Set up Profile button
+        View profileButton = findViewById(R.id.nav_profile);
+        if (profileButton != null) {
+            profileButton.setOnClickListener(v -> {
+                String token = getSharedPreferences("auth", MODE_PRIVATE).getString("token", null);
+                Intent intent;
+                if (token == null || token.isEmpty()) {
+                    intent = new Intent(this, com.example.fe_project_cosmeticapp.ui.LoginActivity.class);
+                } else {
+                    intent = new Intent(this, com.example.fe_project_cosmeticapp.ui.ProfileActivity.class);
+                }
+                startActivity(intent);
             });
         }
     }
