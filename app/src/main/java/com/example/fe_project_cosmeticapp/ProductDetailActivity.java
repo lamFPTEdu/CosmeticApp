@@ -1,5 +1,6 @@
 package com.example.fe_project_cosmeticapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -13,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.example.fe_project_cosmeticapp.api.RetrofitClient;
 import com.example.fe_project_cosmeticapp.base.BaseActivity;
 import com.example.fe_project_cosmeticapp.model.Product;
+import com.example.fe_project_cosmeticapp.utils.SessionManager;
 
 import android.view.LayoutInflater;
 import android.widget.NumberPicker;
@@ -27,6 +29,7 @@ public class ProductDetailActivity extends BaseActivity {
     private TextView productTitle, productSubtitle, productSkinType;
     private TextView productPrice;
     private Button btnAddToCart;
+    private SessionManager sessionManager;
 
     private int productId;
     private Product currentProduct;
@@ -35,8 +38,17 @@ public class ProductDetailActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Initialize SessionManager
+        sessionManager = new SessionManager(this);
+
         // Khởi tạo các view
         initViews();
+
+        // Set up bottom navigation
+        com.google.android.material.bottomnavigation.BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        if (bottomNavigationView != null) {
+            com.example.fe_project_cosmeticapp.navigation.NavigationHandler.setupNavigation(bottomNavigationView, this);
+        }
 
         // Lấy ID sản phẩm từ intent
         productId = getIntent().getIntExtra("product_id", -1);
@@ -154,5 +166,16 @@ public class ProductDetailActivity extends BaseActivity {
         Toast.makeText(this,
             "Đã thêm " + quantity + " " + currentProduct.getName() + " vào giỏ hàng",
             Toast.LENGTH_SHORT).show();
+    }
+
+    // Method to navigate to profile screen
+    private void navigateToProfile() {
+        if (sessionManager.isLoggedIn()) {
+            // User is logged in, go to profile
+            startActivity(new Intent(this, ProfileActivity.class));
+        } else {
+            // User is not logged in, go to login
+            startActivity(new Intent(this, LoginActivity.class));
+        }
     }
 }

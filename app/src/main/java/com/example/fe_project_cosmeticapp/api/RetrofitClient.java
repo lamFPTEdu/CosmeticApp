@@ -46,6 +46,10 @@ public class RetrofitClient {
         return getClient().create(ProductApi.class);
     }
 
+    public static AuthApi getAuthApi() {
+        return getClient().create(AuthApi.class);
+    }
+
     // Phương thức này tạo OkHttpClient để bỏ qua xác thực SSL
     // Chú ý: Chỉ dùng cho môi trường phát triển, không dùng cho production!
     private static OkHttpClient.Builder getUnsafeOkHttpClient() {

@@ -9,18 +9,31 @@ import android.widget.Button;
 import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
+import com.example.fe_project_cosmeticapp.navigation.NavigationHandler;
+import com.example.fe_project_cosmeticapp.utils.SessionManager;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class LandingPageActivity extends AppCompatActivity {
+    private SessionManager sessionManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.base_layout);
+
+        // Initialize SessionManager
+        sessionManager = new SessionManager(this);
 
         // Inflate landing page content into the content frame
         LayoutInflater inflater = LayoutInflater.from(this);
         ViewGroup contentFrame = findViewById(R.id.content_frame);
         View landingPageContent = inflater.inflate(R.layout.landing_page, contentFrame, true);
 
+        // Set up bottom navigation
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        if (bottomNavigationView != null) {
+            NavigationHandler.setupNavigation(bottomNavigationView, this);
+        }
 
         // Set up Know More button
         Button btnGetStarted = landingPageContent.findViewById(R.id.know_more_button);
@@ -40,7 +53,6 @@ public class LandingPageActivity extends AppCompatActivity {
 
         // Set up click listeners for category sections
         setupCategoryClicks(landingPageContent);
-
     }
 
     private void loadImageWithGlide(ImageView imageView, int resourceId) {
@@ -82,5 +94,3 @@ public class LandingPageActivity extends AppCompatActivity {
         startActivity(intent);
     }
 }
-
-
