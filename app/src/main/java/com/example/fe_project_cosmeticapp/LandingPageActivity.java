@@ -41,6 +41,23 @@ public class LandingPageActivity extends AppCompatActivity {
         // Set up click listeners for category sections
         setupCategoryClicks(landingPageContent);
 
+        View profileButton = findViewById(R.id.nav_profile);
+        if (profileButton != null) {
+            profileButton.setOnClickListener(v -> {
+                // Kiểm tra token trong SharedPreferences
+                String token = getSharedPreferences("auth", MODE_PRIVATE).getString("token", null);
+                Intent intent;
+                if (token == null || token.isEmpty()) {
+                    // Chưa đăng nhập, chuyển sang LoginActivity
+                    intent = new Intent(this, com.example.fe_project_cosmeticapp.LoginActivity.class);
+                } else {
+                    // Đã đăng nhập, chuyển sang ProfileActivity
+                    intent = new Intent(this, com.example.fe_project_cosmeticapp.ProfileActivity.class);
+                }
+                startActivity(intent);
+            });
+        }
+
     }
 
     private void loadImageWithGlide(ImageView imageView, int resourceId) {
