@@ -44,9 +44,19 @@ public class NavigationHandler implements BottomNavigationView.OnNavigationItemS
             // context.startActivity(intent);
             return true;
         } else if (itemId == R.id.nav_profile) {
-            // Chuyển đến trang Profile
-            // Intent intent = new Intent(context, ProfileActivity.class);
-            // context.startActivity(intent);
+            // Kiểm tra trạng thái đăng nhập và chuyển đến trang Profile hoặc Login
+            com.example.fe_project_cosmeticapp.utils.SessionManager sessionManager =
+                new com.example.fe_project_cosmeticapp.utils.SessionManager(context);
+
+            if (sessionManager.isLoggedIn()) {
+                // Người dùng đã đăng nhập, chuyển đến trang Profile
+                Intent intent = new Intent(context, com.example.fe_project_cosmeticapp.ProfileActivity.class);
+                context.startActivity(intent);
+            } else {
+                // Người dùng chưa đăng nhập, chuyển đến trang Login
+                Intent intent = new Intent(context, com.example.fe_project_cosmeticapp.LoginActivity.class);
+                context.startActivity(intent);
+            }
             return true;
         }
 

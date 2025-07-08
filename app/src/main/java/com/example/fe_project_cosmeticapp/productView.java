@@ -10,6 +10,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -24,7 +25,10 @@ import com.example.fe_project_cosmeticapp.api.RetrofitClient;
 import com.example.fe_project_cosmeticapp.base.BaseActivity;
 import com.example.fe_project_cosmeticapp.model.Product;
 import com.example.fe_project_cosmeticapp.model.ProductResponse;
+import com.example.fe_project_cosmeticapp.navigation.NavigationHandler;
 import com.example.fe_project_cosmeticapp.utils.EndlessRecyclerViewScrollListener;
+import com.example.fe_project_cosmeticapp.utils.SessionManager;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +52,7 @@ public class productView extends BaseActivity {
     private boolean isLoading = false;
     private boolean isLastPage = false;
     private EndlessRecyclerViewScrollListener scrollListener;
+    private SessionManager sessionManager;
 
     // Thêm mảng chứa các loại da
     private final String[] SKIN_TYPES = {"normal skin", "dry skin", "mixed skin", "oily skin"};
@@ -55,6 +60,9 @@ public class productView extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Initialize SessionManager
+        sessionManager = new SessionManager(this);
 
         // Lấy category từ intent nếu có
         Intent intent = getIntent();
@@ -69,6 +77,12 @@ public class productView extends BaseActivity {
         if (categoryTitleTextView != null && currentCategory != null && !currentCategory.isEmpty()) {
             categoryTitleTextView.setText(currentCategory.toUpperCase());
             categoryTitleTextView.setVisibility(View.VISIBLE);
+        }
+
+        // Set up bottom navigation
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        if (bottomNavigationView != null) {
+            NavigationHandler.setupNavigation(bottomNavigationView, this);
         }
 
         // Load dữ liệu sản phẩm từ API
@@ -477,5 +491,16 @@ public class productView extends BaseActivity {
 
         // Tải lại sản phẩm từ đầu với danh mục mới
         loadProducts(true);
+    }
+
+    // Method to navigate to profile screen
+    private void navigateToProfile() {
+        if (sessionManager.isLoggedIn()) {
+            // User is logged in, go to profile
+            startActivity(new Intent(this, ProfileActivity.class));
+        } else {
+            // User is not logged in, go to login
+            startActivity(new Intent(this, LoginActivity.class));
+        }
     }
 }
