@@ -1,4 +1,4 @@
-package com.example.fe_project_cosmeticapp.ui;
+package com.example.fe_project_cosmeticapp;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;

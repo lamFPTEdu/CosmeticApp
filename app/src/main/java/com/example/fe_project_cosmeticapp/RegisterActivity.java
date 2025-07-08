@@ -1,4 +1,4 @@
-package com.example.fe_project_cosmeticapp.ui;
+package com.example.fe_project_cosmeticapp;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -79,3 +79,4 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 }
+

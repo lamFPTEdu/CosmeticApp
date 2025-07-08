@@ -1,4 +1,4 @@
-package com.example.fe_project_cosmeticapp.ui;
+package com.example.fe_project_cosmeticapp;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -62,11 +62,11 @@ public class LoginActivity extends AppCompatActivity {
                     String email = response.body().getEmail();
                     String name = response.body().getName();
                     getSharedPreferences("auth", MODE_PRIVATE)
-                        .edit()
-                        .putString("token", token)
-                        .putString("email", email)
-                        .putString("name", name)
-                        .apply();
+                            .edit()
+                            .putString("token", token)
+                            .putString("email", email)
+                            .putString("name", name)
+                            .apply();
                     Toast.makeText(LoginActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
