@@ -2,57 +2,65 @@ package com.example.fe_project_cosmeticapp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import androidx.appcompat.app.AppCompatActivity;
-import com.bumptech.glide.Glide;
-import com.example.fe_project_cosmeticapp.navigation.NavigationHandler;
-import com.example.fe_project_cosmeticapp.utils.SessionManager;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class LandingPageActivity extends AppCompatActivity {
+import com.bumptech.glide.Glide;
+import com.example.fe_project_cosmeticapp.base.BaseActivity;
+import com.example.fe_project_cosmeticapp.utils.SessionManager;
+
+public class LandingPageActivity extends BaseActivity {
     private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.base_layout);
 
         // Initialize SessionManager
         sessionManager = new SessionManager(this);
 
-        // Inflate landing page content into the content frame
-        LayoutInflater inflater = LayoutInflater.from(this);
-        ViewGroup contentFrame = findViewById(R.id.content_frame);
-        View landingPageContent = inflater.inflate(R.layout.landing_page, contentFrame, true);
+        // Set up các view và sự kiện (không cần inflate layout vì BaseActivity đã làm điều đó)
+        setupViews();
+    }
 
-        // Set up bottom navigation
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        if (bottomNavigationView != null) {
-            NavigationHandler.setupNavigation(bottomNavigationView, this);
+    private void setupViews() {
+        // Set up Know More button
+        Button btnGetStarted = findViewById(R.id.know_more_button);
+        if (btnGetStarted != null) {
+            btnGetStarted.setOnClickListener(v -> {
+                try {
+                    Intent intent = new Intent(this, productView.class);
+                    startActivity(intent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
         }
 
-        // Set up Know More button
-        Button btnGetStarted = landingPageContent.findViewById(R.id.know_more_button);
-        btnGetStarted.setOnClickListener(v -> {
-            try {
-                Intent intent = new Intent(this, productView.class);
-                startActivity(intent);
-            } catch (Exception e) {
-                e.printStackTrace();
-                // Hiển thị thông báo lỗi nếu cần
-            }
-        });
-
         // Load banner image
-        ImageView bannerImage = landingPageContent.findViewById(R.id.rgbaepa0qd45);
-        loadImageWithGlide(bannerImage, R.drawable.ba);
+        ImageView bannerImage = findViewById(R.id.rgbaepa0qd45);
+        if (bannerImage != null) {
+            loadImageWithGlide(bannerImage, R.drawable.ba);
+        }
 
-        // Set up click listeners for category sections
-        setupCategoryClicks(landingPageContent);
+        // Set up category clicks
+        setupCategoryClicks();
+    }
+
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.landing_page;
+    }
+
+    @Override
+    protected int getSelectedNavigationItemId() {
+        return R.id.nav_home;
+    }
+
+    @Override
+    protected boolean shouldShowBackButton() {
+        return false; // Sử dụng nút menu cho trang chính
     }
 
     private void loadImageWithGlide(ImageView imageView, int resourceId) {
@@ -63,28 +71,30 @@ public class LandingPageActivity extends AppCompatActivity {
             .into(imageView);
     }
 
-    private void setupCategoryClicks(View view) {
+    private void setupCategoryClicks() {
         // Set up click listeners for makeup, skincare, and gifts categories
-        View makeupCategory = view.findViewById(R.id.makeup_category_container);
-        View skincareCategory = view.findViewById(R.id.skincare_category_container);
-        View giftsCategory = view.findViewById(R.id.gifts_category_container);
-        View takeASelfie = view.findViewById(R.id.take_selfie_button);
+        View makeupCategory = findViewById(R.id.makeup_category_container);
+        View skincareCategory = findViewById(R.id.skincare_category_container);
+        View giftsCategory = findViewById(R.id.gifts_category_container);
+        View takeASelfie = findViewById(R.id.take_selfie_button);
 
-        makeupCategory.setOnClickListener(v -> {
-            navigateToProductViewByCategory("make up");
-        });
+        if (makeupCategory != null) {
+            makeupCategory.setOnClickListener(v -> navigateToProductViewByCategory("make up"));
+        }
 
-        skincareCategory.setOnClickListener(v -> {
-            navigateToProductViewByCategory("skin care");
-        });
+        if (skincareCategory != null) {
+            skincareCategory.setOnClickListener(v -> navigateToProductViewByCategory("skin care"));
+        }
 
-        giftsCategory.setOnClickListener(v -> {
-            navigateToProductViewByCategory("gifts & sets");
-        });
+        if (giftsCategory != null) {
+            giftsCategory.setOnClickListener(v -> navigateToProductViewByCategory("gifts & sets"));
+        }
 
-        takeASelfie.setOnClickListener(v -> {
-            // TODO: Navigate to take a selfie feature
-        });
+        if (takeASelfie != null) {
+            takeASelfie.setOnClickListener(v -> {
+                // TODO: Navigate to take a selfie feature
+            });
+        }
     }
 
     // Phương thức để điều hướng đến trang ProductView với danh mục đã chọn

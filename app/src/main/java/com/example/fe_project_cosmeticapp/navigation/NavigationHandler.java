@@ -27,12 +27,13 @@ public class NavigationHandler implements BottomNavigationView.OnNavigationItemS
         int itemId = item.getItemId();
 
         if (itemId == R.id.nav_home) {
-            // Chuyển đến trang Home
-            // Bạn có thể thêm Intent cho trang Home ở đây
-            // Intent intent = new Intent(context, HomeActivity.class);
-            Intent intent = new Intent(context, com.example.fe_project_cosmeticapp.LandingPageActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
+            // Kiểm tra xem đang ở LandingPageActivity hay không
+            if (!(context instanceof com.example.fe_project_cosmeticapp.LandingPageActivity)) {
+                // Chỉ chuyển trang khi không phải đang ở LandingPageActivity
+                Intent intent = new Intent(context, com.example.fe_project_cosmeticapp.LandingPageActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                context.startActivity(intent);
+            }
             return true;
         } else if (itemId == R.id.nav_category) {
             // Hiển thị danh sách các danh mục
