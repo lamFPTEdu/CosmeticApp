@@ -6,14 +6,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import com.example.fe_project_cosmeticapp.base.BaseActivity;
 import com.example.fe_project_cosmeticapp.model.User;
 import com.example.fe_project_cosmeticapp.utils.SessionManager;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends BaseActivity {
 
     private CircleImageView imgAvatar;
     private TextView tvUserName, tvEmail;
@@ -23,7 +22,7 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
+        // Không cần setContentView ở đây, đã được xử lý ở BaseActivity
 
         // Initialize SessionManager
         sessionManager = new SessionManager(this);
@@ -61,5 +60,15 @@ public class ProfileActivity extends AppCompatActivity {
             tvUserName.setText(user.getFullName());
             tvEmail.setText(user.getEmail());
         }
+    }
+
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.activity_profile;
+    }
+
+    @Override
+    protected int getSelectedNavigationItemId() {
+        return R.id.nav_profile; // Đảm bảo id này đúng với menu profile trong bottom_navigation_menu.xml
     }
 }
