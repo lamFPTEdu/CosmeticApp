@@ -50,9 +50,12 @@ public class NavigationHandler implements BottomNavigationView.OnNavigationItemS
                 new com.example.fe_project_cosmeticapp.utils.SessionManager(context);
 
             if (sessionManager.isLoggedIn()) {
-                // Người dùng đã đăng nhập, chuyển đến trang Profile
-                Intent intent = new Intent(context, com.example.fe_project_cosmeticapp.ProfileActivity.class);
-                context.startActivity(intent);
+                // Người dùng đã đăng nhập, chỉ chuyển đến Profile nếu chưa ở ProfileActivity
+                if (!(context instanceof com.example.fe_project_cosmeticapp.ProfileActivity)) {
+                    Intent intent = new Intent(context, com.example.fe_project_cosmeticapp.ProfileActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    context.startActivity(intent);
+                }
             } else {
                 // Người dùng chưa đăng nhập, chuyển đến trang Login
                 Intent intent = new Intent(context, com.example.fe_project_cosmeticapp.LoginActivity.class);
