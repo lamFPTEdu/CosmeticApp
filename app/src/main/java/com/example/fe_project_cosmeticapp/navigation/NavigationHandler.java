@@ -40,9 +40,21 @@ public class NavigationHandler implements BottomNavigationView.OnNavigationItemS
             showCategoryDialog();
             return true;
         } else if (itemId == R.id.nav_cart) {
-            // Chuyển đến trang Cart
-            // Intent intent = new Intent(context, CartActivity.class);
-            // context.startActivity(intent);
+            // Kiểm tra trạng thái đăng nhập trước khi mở trang giỏ hàng
+            com.example.fe_project_cosmeticapp.utils.SessionManager sessionManager =
+                new com.example.fe_project_cosmeticapp.utils.SessionManager(context);
+
+            if (sessionManager.isLoggedIn()) {
+                // Người dùng đã đăng nhập, chuyển đến trang giỏ hàng
+                if (!(context instanceof com.example.fe_project_cosmeticapp.CartActivity)) {
+                    Intent intent = new Intent(context, com.example.fe_project_cosmeticapp.CartActivity.class);
+                    context.startActivity(intent);
+                }
+            } else {
+                // Người dùng chưa đăng nhập, chuyển đến trang Login
+                Intent intent = new Intent(context, com.example.fe_project_cosmeticapp.LoginActivity.class);
+                context.startActivity(intent);
+            }
             return true;
         } else if (itemId == R.id.nav_profile) {
             // Kiểm tra trạng thái đăng nhập và chuyển đến trang Profile hoặc Login

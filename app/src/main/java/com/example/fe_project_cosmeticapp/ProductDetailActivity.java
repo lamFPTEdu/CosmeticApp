@@ -161,11 +161,55 @@ public class ProductDetailActivity extends BaseActivity {
     }
 
     private void addToCart(int quantity) {
-        // Đây là nơi sẽ xử lý logic thêm sản phẩm vào giỏ hàng
-        // Trong phạm vi này chỉ hiển thị thông báo
-        Toast.makeText(this,
-            "Đã thêm " + quantity + " " + currentProduct.getName() + " vào giỏ hàng",
-            Toast.LENGTH_SHORT).show();
+        // Kiểm tra người dùng đã đăng nhập chưa
+        if (!sessionManager.isLoggedIn()) {
+            // Nếu chưa đăng nhập, chuyển đến trang đăng nhập
+            Toast.makeText(this, "Vui lòng đăng nhập để thêm vào giỏ hàng", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, LoginActivity.class));
+            return;
+        }
+
+        // Hiển thị thông báo đang xử lý
+        Toast.makeText(this, "Đang thêm vào giỏ hàng...", Toast.LENGTH_SHORT).show();
+
+        // Tạo request để thêm vào giỏ hàng
+        com.example.fe_project_cosmeticapp.model.CartItemRequest cartItemRequest =
+            new com.example.fe_project_cosmeticapp.model.CartItemRequest(
+                String.valueOf(currentProduct.getId()),
+                quantity
+            );
+
+        // Lấy token từ session
+        String token = "Bearer " + sessionManager.getToken();
+
+        // Gọi API để thêm vào giỏ hàng
+        com.example.fe_project_cosmeticapp.api.RetrofitClient.getCartApi()
+            .addToCart(token, cartItemRequest)
+            .enqueue(new Callback<com.example.fe_project_cosmeticapp.model.MessageResponse>() {
+                @Override
+                public void onResponse(Call<com.example.fe_project_cosmeticapp.model.MessageResponse> call,
+                                      Response<com.example.fe_project_cosmeticapp.model.MessageResponse> response) {
+                    if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                        // Thêm thành công
+                        Toast.makeText(ProductDetailActivity.this,
+                            "Đã thêm " + quantity + " " + currentProduct.getName() + " vào giỏ hàng",
+                            Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Xử lý lỗi
+                        Toast.makeText(ProductDetailActivity.this,
+                            "Không thể thêm vào giỏ hàng. Vui lòng thử lại sau.",
+                            Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<com.example.fe_project_cosmeticapp.model.MessageResponse> call, Throwable t) {
+                    // Xử lý lỗi kết nối
+                    Toast.makeText(ProductDetailActivity.this,
+                        "Lỗi kết nối: " + t.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+                }
+            });
     }
 
     // Method to navigate to profile screen
