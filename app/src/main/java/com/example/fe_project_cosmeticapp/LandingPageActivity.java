@@ -92,7 +92,9 @@ public class LandingPageActivity extends BaseActivity {
 
         if (takeASelfie != null) {
             takeASelfie.setOnClickListener(v -> {
-                // TODO: Navigate to take a selfie feature
+                // Mở SkinAnalysisActivity khi người dùng nhấn nút "Take a Selfie"
+                Intent intent = new Intent(this, SkinAnalysisActivity.class);
+                startActivity(intent);
             });
         }
     }

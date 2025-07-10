@@ -72,32 +72,6 @@
                 </LinearLayout>
             </RelativeLayout>
 
-            <!-- Indicator Dots -->
-            <LinearLayout
-                android:id="@+id/rqvgl552pwu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="16dp"
-                android:gravity="center"
-                android:orientation="horizontal">
-                <View
-                    android:layout_width="6dp"
-                    android:layout_height="6dp"
-                    android:layout_margin="3dp"
-                    android:background="@drawable/active_dot"/>
-                <View
-                    android:layout_width="6dp"
-                    android:layout_height="6dp"
-                    android:layout_margin="3dp"
-                    android:background="@drawable/inactive_dot"/>
-                <View
-                    android:layout_width="6dp"
-                    android:layout_height="6dp"
-                    android:layout_margin="3dp"
-                    android:background="@drawable/inactive_dot"/>
-            </LinearLayout>
-
             <!-- Categories Section -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -251,21 +225,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="20dp"
                     android:orientation="horizontal">
-
-                    <!-- Answer Questions TextView -->
-                    <TextView
-                        android:id="@+id/answer_questions_text"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="8dp"
-                        android:layout_gravity="center_vertical"
-                        android:paddingVertical="12dp"
-                        android:text="Answer a Few Questions"
-                        android:textColor="#A10550"
-                        android:textSize="14sp"
-                        android:clickable="true"
-                        android:focusable="true" />
 
                     <!-- Take Selfie Button -->
                     <Button
