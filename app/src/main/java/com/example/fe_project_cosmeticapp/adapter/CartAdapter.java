@@ -19,6 +19,8 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 
+import retrofit2.Call;
+
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
 
     private Context context;
@@ -57,13 +59,21 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
         // Tải hình ảnh sản phẩm
         if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
+            // Nếu đã có imageUrl từ cart API, dùng luôn
             Glide.with(context)
                 .load(item.getImageUrl())
                 .placeholder(R.drawable.ic_launcher_background)
                 .error(R.drawable.ic_launcher_background)
                 .into(holder.ivProductImage);
         } else {
-            holder.ivProductImage.setImageResource(R.drawable.ic_launcher_background);
+            // Nếu không có imageUrl, gọi Product API để lấy hình ảnh
+            try {
+                int productId = Integer.parseInt(item.getProductId());
+                loadProductImage(productId, holder.ivProductImage);
+            } catch (NumberFormatException e) {
+                // Nếu productId không phải là số, dùng ảnh mặc định
+                holder.ivProductImage.setImageResource(R.drawable.ic_launcher_background);
+            }
         }
 
         // Xử lý sự kiện tăng số lượng
@@ -117,5 +127,40 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             btnDecreaseQuantity = itemView.findViewById(R.id.btnDecreaseQuantity);
             btnRemoveItem = itemView.findViewById(R.id.btnRemoveItem);
         }
+    }
+
+    /**
+     * Tải hình ảnh sản phẩm từ Product API dựa vào productId
+     */
+    private void loadProductImage(int productId, ImageView imageView) {
+        // Gọi API lấy thông tin sản phẩm
+        Call<com.example.fe_project_cosmeticapp.model.Product> call =
+            com.example.fe_project_cosmeticapp.api.RetrofitClient.getProductApi().getProductById(productId);
+
+        call.enqueue(new retrofit2.Callback<com.example.fe_project_cosmeticapp.model.Product>() {
+            @Override
+            public void onResponse(Call<com.example.fe_project_cosmeticapp.model.Product> call,
+                                  retrofit2.Response<com.example.fe_project_cosmeticapp.model.Product> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    com.example.fe_project_cosmeticapp.model.Product product = response.body();
+                    String imageUrl = product.getImageUrl();
+
+                    if (imageUrl != null && !imageUrl.isEmpty()) {
+                        // Tải hình ảnh sử dụng Glide
+                        Glide.with(context)
+                            .load(imageUrl)
+                            .placeholder(R.drawable.ic_launcher_background)
+                            .error(R.drawable.ic_launcher_background)
+                            .into(imageView);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<com.example.fe_project_cosmeticapp.model.Product> call, Throwable t) {
+                // Xử lý lỗi - giữ nguyên ảnh mặc định
+                android.util.Log.e("CartAdapter", "Failed to load product image: " + t.getMessage());
+            }
+        });
     }
 }
