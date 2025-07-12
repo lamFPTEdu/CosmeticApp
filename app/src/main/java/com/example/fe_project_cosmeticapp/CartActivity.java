@@ -70,6 +70,9 @@ public class CartActivity extends BaseActivity implements CartAdapter.CartItemLi
         rvCartItems.setLayoutManager(new LinearLayoutManager(this));
         rvCartItems.setAdapter(cartAdapter);
 
+        // Lắng nghe thay đổi chọn select để cập nhật tổng tiền ngay khi chọn/bỏ chọn
+        cartAdapter.setOnSelectionChangedListener(this::updateSelectedTotalPrice);
+
         // Kiểm tra trạng thái đăng nhập và tải giỏ hàng nếu đã đăng nhập
         if (sessionManager.isLoggedIn()) {
             loadCartItems();
@@ -131,33 +134,16 @@ public class CartActivity extends BaseActivity implements CartAdapter.CartItemLi
 
     private void updateCartUI(CartResponse cartResponse) {
         cartItems.clear();
-
         List<CartItem> items = cartResponse.getItems();
         if (items != null && !items.isEmpty()) {
-            // Debug logs for total price
-            android.util.Log.d("CartDebug", "Total price from API (direct): " + cartResponse.getTotalPrice());
-            android.util.Log.d("CartDebug", "Total price calculated from items: " + cartResponse.calculateTotalFromItems());
-
-            for (CartItem item : items) {
-                String debug = "Cart item: id=" + item.getProductId() +
-                        ", name=" + item.getName() +
-                        ", price=" + item.getPrice() +
-                        ", quantity=" + item.getQuantity() +
-                        ", subtotal=" + item.getSubtotal();
-                android.util.Log.d("CartDebug", debug);
-            }
-
             cartItems.addAll(items);
             cartAdapter.notifyDataSetChanged();
-
             showCartItems();
-
-            // Use calculated total if API total is zero
-            double totalToShow = cartResponse.getTotalPrice();
-            if (totalToShow <= 0) {
-                totalToShow = cartResponse.calculateTotalFromItems();
+            // Khi load lại giỏ hàng, reset tất cả select về false và tổng tiền về 0
+            for (CartItem item : cartItems) {
+                item.setSelected(false);
             }
-            updateTotalPrice(totalToShow);
+            updateSelectedTotalPrice();
         } else {
             showEmptyCart();
         }
@@ -166,6 +152,17 @@ public class CartActivity extends BaseActivity implements CartAdapter.CartItemLi
     private void updateTotalPrice(double totalPrice) {
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
         tvTotalPrice.setText(currencyFormatter.format(totalPrice));
+    }
+
+    // Hàm cập nhật tổng tiền dựa trên các sản phẩm được chọn
+    private void updateSelectedTotalPrice() {
+        double total = 0;
+        for (CartItem item : cartItems) {
+            if (item.isSelected()) {
+                total += item.getSubtotal();
+            }
+        }
+        updateTotalPrice(total);
     }
 
     private void showLoading() {

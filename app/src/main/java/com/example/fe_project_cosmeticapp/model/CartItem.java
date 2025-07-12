@@ -31,6 +31,8 @@ public class CartItem {
     @SerializedName("stockQuantity")
     private int stockQuantity;
 
+    private boolean isSelected = false;
+
     public String getProductId() {
         return productId;
     }
@@ -109,5 +111,13 @@ public class CartItem {
 
     public void setStockQuantity(int stockQuantity) {
         this.stockQuantity = stockQuantity;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
     }
 }
