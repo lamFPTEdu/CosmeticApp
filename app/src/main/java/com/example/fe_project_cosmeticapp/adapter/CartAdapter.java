@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -31,6 +32,16 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     public interface CartItemListener {
         void onUpdateQuantity(String productId, int newQuantity);
         void onRemoveItem(String productId);
+    }
+
+    public interface OnSelectionChangedListener {
+        void onSelectionChanged();
+    }
+
+    private OnSelectionChangedListener selectionChangedListener;
+
+    public void setOnSelectionChangedListener(OnSelectionChangedListener listener) {
+        this.selectionChangedListener = listener;
     }
 
     public CartAdapter(Context context, List<CartItem> cartItems, CartItemListener listener) {
@@ -76,6 +87,14 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             }
         }
 
+        // Bind selection state
+        holder.cbSelectItem.setOnCheckedChangeListener(null);
+        holder.cbSelectItem.setChecked(item.isSelected());
+        holder.cbSelectItem.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            item.setSelected(isChecked);
+            if (selectionChangedListener != null) selectionChangedListener.onSelectionChanged();
+        });
+
         // Xử lý sự kiện tăng số lượng
         holder.btnIncreaseQuantity.setOnClickListener(v -> {
             int newQuantity = item.getQuantity() + 1;
@@ -115,6 +134,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         ImageView ivProductImage;
         TextView tvProductName, tvProductPrice, tvQuantity, tvSubtotal;
         ImageButton btnIncreaseQuantity, btnDecreaseQuantity, btnRemoveItem;
+        CheckBox cbSelectItem;
 
         public CartViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -126,6 +146,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             btnIncreaseQuantity = itemView.findViewById(R.id.btnIncreaseQuantity);
             btnDecreaseQuantity = itemView.findViewById(R.id.btnDecreaseQuantity);
             btnRemoveItem = itemView.findViewById(R.id.btnRemoveItem);
+            cbSelectItem = itemView.findViewById(R.id.cbSelectItem);
         }
     }
 
