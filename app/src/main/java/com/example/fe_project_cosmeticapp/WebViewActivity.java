@@ -56,8 +56,11 @@ public class WebViewActivity extends AppCompatActivity {
         btnBackToApp.setText("Quay lại ứng dụng");
         FrameLayout.LayoutParams btnParams = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-        btnParams.topMargin = 40;
-        btnParams.leftMargin = 40;
+        btnParams.gravity = android.view.Gravity.BOTTOM | android.view.Gravity.CENTER_HORIZONTAL;
+        btnParams.bottomMargin = 60;
+        btnParams.topMargin = 0;
+        btnParams.leftMargin = 0;
+        btnParams.rightMargin = 0;
         btnBackToApp.setLayoutParams(btnParams);
         btnBackToApp.setAlpha(0.85f);
         btnBackToApp.setOnClickListener(new View.OnClickListener() {
@@ -270,7 +273,7 @@ public class WebViewActivity extends AppCompatActivity {
                                                                                         if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                                                                                             Toast.makeText(WebViewActivity.this, "Thanh toán thành công cho sản phẩm đã chọn!", Toast.LENGTH_SHORT).show();
                                                                                         } else {
-                                                                                            Toast.makeText(WebViewActivity.this, "Thanh toán th��t bại!", Toast.LENGTH_SHORT).show();
+                                                                                            Toast.makeText(WebViewActivity.this, "Thanh toán thất bại!", Toast.LENGTH_SHORT).show();
                                                                                         }
                                                                                     }
                                                                                     @Override
