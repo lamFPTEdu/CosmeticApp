@@ -16,12 +16,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fe_project_cosmeticapp.adapter.CartAdapter;
 import com.example.fe_project_cosmeticapp.api.CartApi;
+import com.example.fe_project_cosmeticapp.api.CheckoutApi;
+import com.example.fe_project_cosmeticapp.api.PaypalApi;
 import com.example.fe_project_cosmeticapp.api.RetrofitClient;
 import com.example.fe_project_cosmeticapp.base.BaseActivity;
 import com.example.fe_project_cosmeticapp.model.CartItem;
 import com.example.fe_project_cosmeticapp.model.CartResponse;
 import com.example.fe_project_cosmeticapp.model.CartUpdateRequest;
+import com.example.fe_project_cosmeticapp.model.CheckoutRequest;
+import com.example.fe_project_cosmeticapp.model.CheckoutResponse;
 import com.example.fe_project_cosmeticapp.model.MessageResponse;
+import com.example.fe_project_cosmeticapp.model.PaypalPaymentRequest;
+import com.example.fe_project_cosmeticapp.model.PaypalPaymentResponse;
+import com.example.fe_project_cosmeticapp.model.PaypalCaptureRequest;
+import com.example.fe_project_cosmeticapp.model.PaypalCaptureResponse;
+import com.example.fe_project_cosmeticapp.model.Item;
 import com.example.fe_project_cosmeticapp.utils.SessionManager;
 
 import java.text.NumberFormat;
@@ -44,6 +53,10 @@ public class CartActivity extends BaseActivity implements CartAdapter.CartItemLi
     private List<CartItem> cartItems = new ArrayList<>();
     private SessionManager sessionManager;
     private CartApi cartApi;
+    private CheckoutApi checkoutApi;
+    private PaypalApi paypalApi;
+    private int lastOrderId = -1;
+    private List<Integer> lastPaidProductIds = new ArrayList<>();
 
     @Override
     protected int getLayoutResourceId() {
@@ -64,6 +77,8 @@ public class CartActivity extends BaseActivity implements CartAdapter.CartItemLi
         // Khởi tạo SessionManager và CartApi
         sessionManager = new SessionManager(this);
         cartApi = RetrofitClient.getCartApi();
+        checkoutApi = RetrofitClient.getCheckoutApi();
+        paypalApi = RetrofitClient.getPaypalApi();
 
         // Khởi tạo RecyclerView
         cartAdapter = new CartAdapter(this, cartItems, this);
@@ -83,10 +98,62 @@ public class CartActivity extends BaseActivity implements CartAdapter.CartItemLi
         // Thiết lập sự kiện cho nút thanh toán
         btnCheckout.setOnClickListener(v -> {
             if (sessionManager.isLoggedIn()) {
-                // TODO: Chuyển đến trang thanh toán
-                Toast.makeText(CartActivity.this, "Chức năng thanh toán đang được phát triển", Toast.LENGTH_SHORT).show();
+                List<Item> selectedItems = new ArrayList<>();
+                ArrayList<String> selectedProductIds = new ArrayList<>();
+                for (CartItem item : cartItems) {
+                    if (item.isSelected()) {
+                        selectedItems.add(new Item(Integer.parseInt(item.getProductId()), item.getQuantity()));
+                        selectedProductIds.add(item.getProductId());
+                    }
+                }
+                if (selectedItems.isEmpty()) {
+                    Toast.makeText(CartActivity.this, "Vui lòng chọn sản phẩm để thanh toán!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String token = "Bearer " + sessionManager.getToken();
+                CheckoutRequest checkoutRequest = new CheckoutRequest("paypal", selectedItems);
+                // Gọi trực tiếp API checkout để thanh toán các sản phẩm đã chọn
+                checkoutApi.checkout(token, checkoutRequest).enqueue(new Callback<CheckoutResponse>() {
+                    @Override
+                    public void onResponse(Call<CheckoutResponse> call, Response<CheckoutResponse> response) {
+                        if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                            int orderId = response.body().getOrderId();
+                            lastOrderId = orderId;
+                            lastPaidProductIds.clear();
+                            for (Item item : selectedItems) {
+                                lastPaidProductIds.add(item.getProductId());
+                            }
+                            paypalApi.createPaypalPayment(token, new PaypalPaymentRequest(orderId)).enqueue(new Callback<PaypalPaymentResponse>() {
+                                @Override
+                                public void onResponse(Call<PaypalPaymentResponse> call, Response<PaypalPaymentResponse> response) {
+                                    if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                                        String approvalUrl = response.body().getApprovalUrl();
+                                        Intent intent = new Intent(CartActivity.this, WebViewActivity.class);
+                                        intent.putExtra(WebViewActivity.EXTRA_URL, approvalUrl);
+                                        intent.putExtra(WebViewActivity.EXTRA_ORDER_ID, String.valueOf(orderId));
+                                        intent.putStringArrayListExtra("selectedProductIds", selectedProductIds);
+                                        // Truyền tổng tiền đã hiện trong giỏ hàng
+                                        intent.putExtra("cart_total_price", tvTotalPrice.getText().toString());
+                                        startActivityForResult(intent, 1001);
+                                    } else {
+                                        showError("Không thể tạo thanh toán PayPal");
+                                    }
+                                }
+                                @Override
+                                public void onFailure(Call<PaypalPaymentResponse> call, Throwable t) {
+                                    showError("Lỗi kết nối PayPal: " + t.getMessage());
+                                }
+                            });
+                        } else {
+                            showError("Không thể tạo đơn hàng");
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<CheckoutResponse> call, Throwable t) {
+                        showError("Lỗi kết nối: " + t.getMessage());
+                    }
+                });
             } else {
-                // Chuyển đến trang đăng nhập nếu chưa đăng nhập
                 Intent intent = new Intent(CartActivity.this, LoginActivity.class);
                 startActivity(intent);
             }
@@ -155,6 +222,7 @@ public class CartActivity extends BaseActivity implements CartAdapter.CartItemLi
     }
 
     // Hàm cập nhật tổng tiền dựa trên các sản phẩm được chọn
+    // Đảm bảo chỉ tính tổng tiền của các sản phẩm đã chọn
     private void updateSelectedTotalPrice() {
         double total = 0;
         for (CartItem item : cartItems) {
@@ -204,13 +272,13 @@ public class CartActivity extends BaseActivity implements CartAdapter.CartItemLi
                         // Tải lại giỏ hàng sau khi cập nhật
                         loadCartItems();
                     } else {
-                        showError("Không thể cập nhật số lượng");
+                        showError("Kh��ng th�� c��p nhật số lượng");
                     }
                 }
 
                 @Override
                 public void onFailure(Call<MessageResponse> call, Throwable t) {
-                    showError("Lỗi kết nối: " + t.getMessage());
+                    showError("Lỗi k��t nối: " + t.getMessage());
                 }
             });
         }
@@ -291,6 +359,39 @@ public class CartActivity extends BaseActivity implements CartAdapter.CartItemLi
                     showError("Lỗi kết nối: " + t.getMessage());
                 }
             });
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1001) {
+            if (resultCode == RESULT_OK && data != null) {
+                String paymentStatus = data.getStringExtra("payment_status");
+                // Nếu WebViewActivity đã xác thực thành công
+                if ("Success".equalsIgnoreCase(paymentStatus)) {
+                    ArrayList<String> selectedProductIds = data.getStringArrayListExtra("selectedProductIds");
+                    String token = "Bearer " + sessionManager.getToken();
+                    if (selectedProductIds != null && !selectedProductIds.isEmpty()) {
+                        for (String productId : selectedProductIds) {
+                            cartApi.removeFromCart(token, productId).enqueue(new Callback<MessageResponse>() {
+                                @Override
+                                public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
+                                    // Không cần xử lý từng response riêng lẻ
+                                }
+                                @Override
+                                public void onFailure(Call<MessageResponse> call, Throwable t) {
+                                    // Không cần xử lý lỗi từng sản phẩm
+                                }
+                            });
+                        }
+                    }
+                    loadCartItems();
+                    Toast.makeText(CartActivity.this, "Thanh toán thành công! Đã xóa sản phẩm đã chọn.", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(CartActivity.this, "Thanh toán chưa hoàn tất hoặc thất bại!", Toast.LENGTH_SHORT).show();
+                }
+            }
         }
     }
 }
