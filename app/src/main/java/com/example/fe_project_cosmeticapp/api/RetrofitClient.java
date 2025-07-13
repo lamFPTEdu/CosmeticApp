@@ -54,6 +54,15 @@ public class RetrofitClient {
         return getClient().create(CartApi.class);
     }
 
+    public static CheckoutApi getCheckoutApi() {
+        return getClient().create(CheckoutApi.class);
+    }
+
+    public static PaypalApi getPaypalApi() {
+        return getClient().create(PaypalApi.class);
+    }
+
+
     // Phương thức này tạo OkHttpClient để bỏ qua xác thực SSL
     // Chú ý: Chỉ dùng cho môi trường phát triển, không dùng cho production!
     private static OkHttpClient.Builder getUnsafeOkHttpClient() {
