@@ -96,7 +96,8 @@ public class WebViewActivity extends AppCompatActivity {
                 finish();
             }
         });
-        rootLayout.addView(btnBackToApp, btnParams);
+        // Add the button after the WebView so it appears on top and at the bottom
+        rootLayout.addView(btnBackToApp);
         setContentView(rootLayout);
 
         paypalApi = RetrofitClient.getPaypalApi();
