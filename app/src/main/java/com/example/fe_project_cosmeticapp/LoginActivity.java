@@ -85,31 +85,34 @@ public class LoginActivity extends AppCompatActivity {
         // Create user object for login
         User user = new User(email, password);
 
-        // Call login API
-        Call<User> call = RetrofitClient.getAuthApi().login(user);
-        call.enqueue(new Callback<User>() {
+        // Call login API (updated to LoginResponse)
+        Call<com.example.fe_project_cosmeticapp.model.LoginResponse> call = RetrofitClient.getAuthApi().login(user);
+        call.enqueue(new Callback<com.example.fe_project_cosmeticapp.model.LoginResponse>() {
             @Override
-            public void onResponse(Call<User> call, Response<User> response) {
+            public void onResponse(Call<com.example.fe_project_cosmeticapp.model.LoginResponse> call, Response<com.example.fe_project_cosmeticapp.model.LoginResponse> response) {
                 btnLogin.setText("Đăng nhập");
                 btnLogin.setEnabled(true);
 
-                if (response.isSuccessful() && response.body() != null) {
-                    // Save user to shared preferences
-                    User loggedInUser = response.body();
+                if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
+                    // Save token and userId to session (customize as needed)
+                    com.example.fe_project_cosmeticapp.model.LoginResponse.TokenData tokenData = response.body().getToken();
+                    // You may want to create a User object or extend SessionManager to save token/userId
+                    User loggedInUser = new User();
+                    loggedInUser.setEmail(email);
+                    loggedInUser.setToken(tokenData.getToken());
+                    loggedInUser.setId(tokenData.getUserId());
                     sessionManager.saveUser(loggedInUser);
 
-                    // Redirect to profile or landing page
                     Toast.makeText(LoginActivity.this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(LoginActivity.this, LandingPageActivity.class));
+                    startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
                     finish();
                 } else {
-                    // Show error message
                     Toast.makeText(LoginActivity.this, "Đăng nhập thất bại. Vui lòng kiểm tra email và mật khẩu", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<User> call, Throwable t) {
+            public void onFailure(Call<com.example.fe_project_cosmeticapp.model.LoginResponse> call, Throwable t) {
                 btnLogin.setText("Đăng nhập");
                 btnLogin.setEnabled(true);
                 Toast.makeText(LoginActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
