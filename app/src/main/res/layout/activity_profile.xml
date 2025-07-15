@@ -11,31 +11,15 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <RelativeLayout
+        <TextView
+            android:id="@+id/tv_profile_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp">
-
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/img_avatar"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_centerHorizontal="true"
-                android:src="@drawable/ic_launcher_foreground"
-                app:civ_border_width="2dp"
-                app:civ_border_color="@color/design_default_color_primary"/>
-
-            <TextView
-                android:id="@+id/tv_user_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/img_avatar"
-                android:layout_marginTop="8dp"
-                android:text="Tên người dùng"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:gravity="center"/>
-        </RelativeLayout>
+            android:text="Profile"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="16dp"/>
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -62,7 +46,110 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Họ và tên: "
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/tv_user_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Tên người dùng"/>
+
+                    <ImageButton
+                        android:id="@+id/btn_edit_name"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/ic_edit"
+                        android:padding="4dp"
+                        android:src="@drawable/ic_edit"
+                        app:tint="@android:color/holo_blue_dark"
+                        android:contentDescription="Sửa tên"
+                        android:focusable="false"
+                        android:clickable="true" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Số điện thoại: "
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/tv_phone"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Chưa cập nhật"/>
+
+                    <ImageButton
+                        android:id="@+id/btn_edit_phone"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/ic_edit"
+                        android:padding="4dp"
+                        android:src="@drawable/ic_edit"
+                        app:tint="@android:color/holo_blue_dark"
+                        android:contentDescription="Sửa số điện thoại"
+                        android:focusable="false"
+                        android:clickable="true" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Địa chỉ: "
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/tv_address"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Chưa cập nhật"/>
+
+                    <ImageButton
+                        android:id="@+id/btn_edit_address"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/ic_edit"
+                        android:padding="4dp"
+                        android:src="@drawable/ic_edit"
+                        app:tint="@android:color/holo_blue_dark"
+                        android:contentDescription="Sửa địa chỉ"
+                        android:focusable="false"
+                        android:clickable="true" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center_vertical">
 
                     <TextView
                         android:layout_width="wrap_content"

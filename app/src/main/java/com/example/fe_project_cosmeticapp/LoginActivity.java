@@ -94,12 +94,10 @@ public class LoginActivity extends AppCompatActivity {
                 btnLogin.setEnabled(true);
 
                 if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
-                    // Save token and userId to session (customize as needed)
+                    // Save userId to session (no token in User)
                     com.example.fe_project_cosmeticapp.model.LoginResponse.TokenData tokenData = response.body().getToken();
-                    // You may want to create a User object or extend SessionManager to save token/userId
                     User loggedInUser = new User();
                     loggedInUser.setEmail(email);
-                    loggedInUser.setToken(tokenData.getToken());
                     loggedInUser.setId(tokenData.getUserId());
                     sessionManager.saveUser(loggedInUser);
 

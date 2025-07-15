@@ -48,10 +48,7 @@ public class SessionManager {
     }
 
     public String getToken() {
-        User user = getUser();
-        if (user != null) {
-            return user.getToken();
-        }
+        // Không còn lưu token trong User, nên lấy token từ SharedPreferences riêng biệt (nếu cần)
         return null;
     }
 }
