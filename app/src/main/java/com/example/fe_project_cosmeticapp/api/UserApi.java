@@ -1,5 +1,6 @@
 package com.example.fe_project_cosmeticapp.api;
 
+import com.example.fe_project_cosmeticapp.model.OrderHistoryResponse;
 import com.example.fe_project_cosmeticapp.model.UserProfile;
 
 import retrofit2.Call;
@@ -14,5 +15,7 @@ public interface UserApi {
 
     @PUT("api/Users/{userId}")
     Call<UserProfile> updateUserProfile(@Path("userId") int userId, @Body UserProfile userProfile);
-}
 
+    @GET("api/Users/{userId}/details")
+    Call<OrderHistoryResponse> getOrderHistory(@Path("userId") int userId);
+}

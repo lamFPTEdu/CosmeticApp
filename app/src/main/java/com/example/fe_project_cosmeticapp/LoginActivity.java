@@ -99,7 +99,8 @@ public class LoginActivity extends AppCompatActivity {
                     User loggedInUser = new User();
                     loggedInUser.setEmail(email);
                     loggedInUser.setId(tokenData.getUserId());
-                    sessionManager.saveUser(loggedInUser);
+                    // Lưu cả user và token vào session
+                    sessionManager.saveUser(loggedInUser, tokenData.getToken());
 
                     Toast.makeText(LoginActivity.this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(LoginActivity.this, ProfileActivity.class));

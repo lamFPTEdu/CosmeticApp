@@ -100,7 +100,8 @@ public class RegisterActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     // Save user to shared preferences
                     User registeredUser = response.body();
-                    sessionManager.saveUser(registeredUser);
+                    // Đăng ký không có token trả về, truyền null cho token
+                    sessionManager.saveUser(registeredUser, null);
 
                     // Redirect to landing page
                     Toast.makeText(RegisterActivity.this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
