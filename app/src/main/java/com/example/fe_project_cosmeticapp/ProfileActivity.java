@@ -44,6 +44,7 @@ public class ProfileActivity extends BaseActivity {
         btnEditPhone = findViewById(R.id.btn_edit_phone); // ImageButton in layout
         btnEditAddress = findViewById(R.id.btn_edit_address); // ImageButton in layout
         btnEditName = findViewById(R.id.btn_edit_name); // ImageButton in layout
+        Button btnOrderHistory = findViewById(R.id.btn_order_history);
 
         // Load user data
         loadUserData();
@@ -89,6 +90,12 @@ public class ProfileActivity extends BaseActivity {
                         updateProfileField("fullName", newValue);
                     }
                 });
+            }
+        });
+        btnOrderHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ProfileActivity.this, OrderHistoryActivity.class));
             }
         });
     }

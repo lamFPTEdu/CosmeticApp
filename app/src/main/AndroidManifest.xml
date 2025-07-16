@@ -58,6 +58,9 @@
         <activity
             android:name=".WebViewActivity"
             android:exported="false" />
+        <activity
+            android:name=".OrderHistoryActivity"
+            android:exported="false" />
 
         <!-- FileProvider cho việc chụp ảnh từ camera -->
         <provider

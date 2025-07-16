@@ -10,6 +10,7 @@ public class SessionManager {
     private static final String PREF_NAME = "CosmeticAppSession";
     private static final String KEY_USER = "user";
     private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
+    private static final String KEY_TOKEN = "token";
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
@@ -21,10 +22,11 @@ public class SessionManager {
         editor = sharedPreferences.edit();
     }
 
-    public void saveUser(User user) {
+    public void saveUser(User user, String token) {
         Gson gson = new Gson();
         String userJson = gson.toJson(user);
         editor.putString(KEY_USER, userJson);
+        editor.putString(KEY_TOKEN, token);
         editor.putBoolean(KEY_IS_LOGGED_IN, true);
         editor.apply();
     }
@@ -48,7 +50,6 @@ public class SessionManager {
     }
 
     public String getToken() {
-        // Không còn lưu token trong User, nên lấy token từ SharedPreferences riêng biệt (nếu cần)
-        return null;
+        return sharedPreferences.getString(KEY_TOKEN, null);
     }
 }

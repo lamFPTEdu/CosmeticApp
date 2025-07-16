@@ -53,7 +53,7 @@ public class WebViewActivity extends AppCompatActivity {
         rootLayout.addView(webView, webParams);
 
         Button btnBackToApp = new Button(this);
-        btnBackToApp.setText("Quay lại ứng dụng");
+        btnBackToApp.setText("Xác nhận thanh toán");
         FrameLayout.LayoutParams btnParams = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         btnParams.gravity = android.view.Gravity.BOTTOM | android.view.Gravity.CENTER_HORIZONTAL;
@@ -66,34 +66,61 @@ public class WebViewActivity extends AppCompatActivity {
         btnBackToApp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Lấy danh sách sản phẩm đã chọn từ Intent
-                Intent intent = getIntent();
-                ArrayList<String> selectedProductIds = intent.getStringArrayListExtra("selectedProductIds");
-                CartApi cartApi = RetrofitClient.getCartApi();
-                String token = sessionManager.getToken();
-                if (token != null && !token.startsWith("Bearer ")) {
-                    token = "Bearer " + token;
+                // Khi nhấn xác nhận thanh toán, kiểm tra trạng thái đơn hàng qua API
+                com.example.fe_project_cosmeticapp.utils.SessionManager sessionManager = new com.example.fe_project_cosmeticapp.utils.SessionManager(WebViewActivity.this);
+                com.example.fe_project_cosmeticapp.model.User user = sessionManager.getUser();
+                if (user == null) {
+                    Toast.makeText(WebViewActivity.this, "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
                 }
-                if (selectedProductIds != null && !selectedProductIds.isEmpty()) {
-                    // Xóa từng sản phẩm đã chọn khỏi giỏ hàng
-                    for (String productId : selectedProductIds) {
-                        cartApi.removeFromCart(token, productId).enqueue(new retrofit2.Callback<com.example.fe_project_cosmeticapp.model.MessageResponse>() {
-                            @Override
-                            public void onResponse(Call<com.example.fe_project_cosmeticapp.model.MessageResponse> call, Response<com.example.fe_project_cosmeticapp.model.MessageResponse> response) {
-                                // Không cần xử lý từng response riêng lẻ
+                int userId = user.getId();
+                com.example.fe_project_cosmeticapp.api.UserApi userApi = com.example.fe_project_cosmeticapp.api.RetrofitClient.getUserApi();
+                userApi.getOrderHistory(userId).enqueue(new retrofit2.Callback<com.example.fe_project_cosmeticapp.model.OrderHistoryResponse>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<com.example.fe_project_cosmeticapp.model.OrderHistoryResponse> call, retrofit2.Response<com.example.fe_project_cosmeticapp.model.OrderHistoryResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            java.util.List<com.example.fe_project_cosmeticapp.model.OrderHistoryItem> orders = response.body().getOrders();
+                            boolean found = false;
+                            if (orders != null) {
+                                for (com.example.fe_project_cosmeticapp.model.OrderHistoryItem order : orders) {
+                                    if (String.valueOf(order.getOrderId()).equals(orderId)) {
+                                        found = true;
+                                        if ("Pending".equalsIgnoreCase(order.getStatus())) {
+                                            Toast.makeText(WebViewActivity.this, "Đơn hàng đang chờ thanh toán lại!", Toast.LENGTH_SHORT).show();
+                                            Intent intent = new Intent(WebViewActivity.this, com.example.fe_project_cosmeticapp.OrderHistoryActivity.class);
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                            startActivity(intent);
+                                            finish();
+                                        } else if ("Success".equalsIgnoreCase(order.getStatus()) || "Completed".equalsIgnoreCase(order.getStatus())) {
+                                            Toast.makeText(WebViewActivity.this, "Đơn hàng đã thanh toán thành công!", Toast.LENGTH_SHORT).show();
+                                            Intent intent = new Intent(WebViewActivity.this, com.example.fe_project_cosmeticapp.OrderHistoryActivity.class);
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                            startActivity(intent);
+                                            finish();
+                                        } else {
+                                            Toast.makeText(WebViewActivity.this, "Trạng thái đơn hàng: " + order.getStatus(), Toast.LENGTH_SHORT).show();
+                                            Intent intent = new Intent(WebViewActivity.this, com.example.fe_project_cosmeticapp.OrderHistoryActivity.class);
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                            startActivity(intent);
+                                            finish();
+                                        }
+                                        break;
+                                    }
+                                }
                             }
-                            @Override
-                            public void onFailure(Call<com.example.fe_project_cosmeticapp.model.MessageResponse> call, Throwable t) {
-                                // Không cần xử lý lỗi từng sản phẩm
+                            if (!found) {
+                                Toast.makeText(WebViewActivity.this, "Không tìm thấy đơn hàng!", Toast.LENGTH_SHORT).show();
                             }
-                        });
+                        } else {
+                            Toast.makeText(WebViewActivity.this, "Không thể kiểm tra trạng thái đơn hàng!", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                }
-                Toast.makeText(WebViewActivity.this, "Thanh toán thành công!", Toast.LENGTH_SHORT).show();
-                Intent resultIntent = new Intent();
-                resultIntent.putExtra("payment_status", "Success");
-                setResult(RESULT_OK, resultIntent);
-                finish();
+                    @Override
+                    public void onFailure(retrofit2.Call<com.example.fe_project_cosmeticapp.model.OrderHistoryResponse> call, Throwable t) {
+                        Toast.makeText(WebViewActivity.this, "Lỗi kết nối khi kiểm tra đơn hàng!", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
         // Add the button after the WebView so it appears on top and at the bottom
